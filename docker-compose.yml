@@ -19,3 +19,16 @@
        - SECRET_KEY=django-insecure-*bt3miakh_xjq%ck9@g(ofm!m&6)=&47d=dde^df76+mxkt$_^
      depends_on:
        - redis
+   celery :
+     container_name: celery
+     build:
+       context: ./
+       dockerfile: Dockerfile
+     volumes:
+       - .:/app
+     environment:
+         - ALLOWED_HOSTS=127.0.0.1
+         - DEBUG=True
+         - SECRET_KEY=django-insecure-7j059%v4_xo_3n*4g_z%*2sjzkii@u)m7dvw(%a1=t4e%=qp7g
+     depends_on:
+       - redis
