@@ -1,0 +1,21 @@
+ version: '3.8'
+
+ services:
+   redis :
+     image: redis:7.0.11-alpine
+   django :
+     container_name: django_celery_project
+     build:
+       context: ./
+       dockerfile: Dockerfile
+     command : sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+     volumes:
+       - .:/app
+     ports:
+       - "8000:8000"
+     environment:
+       - ALLOWED_HOSTS=127.0.0.1
+       - DEBUG=True
+       - SECRET_KEY=django-insecure-*bt3miakh_xjq%ck9@g(ofm!m&6)=&47d=dde^df76+mxkt$_^
+     depends_on:
+       - redis
