@@ -3,5 +3,5 @@
 .docker
 .env/
 venv/
-.venv/
+../.venv/
 data/
