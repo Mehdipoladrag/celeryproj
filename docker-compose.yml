@@ -1,51 +1,54 @@
- version: '3.8'
+version: '3.8'
 
- services:
-   redis :
-     image: redis:7.0.11-alpine
-   django :
-     container_name: django_celery_project
-     build:
-       context: ./eshop
-       dockerfile: Dockerfile
-     command : sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-     volumes:
-       - .:/eshop/app/
-     ports:
-       - "8000:8000"
-     environment:
-       - ALLOWED_HOSTS=localhost,127.0.0.1
-       - DEBUG=True
-       - SECRET_KEY=django-insecure-*bt3miakh_xjq%ck9@g(ofm!m&6)=&47d=dde^df76+mxkt$_^
-     depends_on:
-       - redis
-   celery :
-     container_name: celery
-     build:
-       context: ./eshop
-       dockerfile: Dockerfile
-     command: celery --app=config worker -l INFO
-     volumes:
-       - .:/eshop/app/
-     environment:
-         - ALLOWED_HOSTS=localhost,127.0.0.1
-         - DEBUG=True
-         - SECRET_KEY=django-insecure-7j059%v4_xo_3n*4g_z%*2sjzkii@u)m7dvw(%a1=t4e%=qp7g
-     depends_on:
-       - redis
-       - django
-   stand_alone_celery:
-     container_name: stand_alone_celery
-     build:
-       context: ./celery_worker
-       dockerfile: Dockerfile
-     command: celery -A celery_base worker -l INFO
-     volumes:
-       - .:/celery_worker/app/
-     environment:
-       - CELERY_BROKER_URL = redis://redis:6379/0
-       - RESULT_BACKEND=redis://redis:6379/0
+services:
+  redis:
+    image: redis:7.0.11-alpine
 
-     depends_on:
-       - redis
-       - django
+  django:
+    image: eshop_django
+    container_name: django_celery_project
+    build:
+      context: ./eshop
+      dockerfile: Dockerfile
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./eshop:/app/
+    ports:
+      - "8000:8000"
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=sdlkfhsdlfhslhdslkdjfsldejfdsl@sldfhglsdfhg
+    depends_on:
+      - redis
+
+  celery:
+    container_name: celery
+    build:
+      context: ./eshop
+      dockerfile: Dockerfile
+    command: celery --app=config worker -l INFO -Q queue2
+    volumes:
+      - ./eshop:/app/
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=sdlkfhsdlfhslhdslkdjfsldejfdsl@sldfhglsdfhg
+    depends_on:
+      - redis
+      - django
+
+  stand_alone_celery:
+    container_name: stand_alone_celery
+    build:
+      context: ./celery_worker
+      dockerfile: Dockerfile
+    command: celery -A celery_base worker -l INFO -Q queue1
+    volumes:
+      - ./celery_worker:/app
+    environment:
+      - BROKER_URL=redis://redis:6379/0
+      - RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+      - django
