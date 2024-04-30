@@ -17,11 +17,16 @@ def send_sms_to_user(phone_number: str):
     return f'Message has been sent to {phone_number}'
 
 
+@app.task(queue='dead_letter')
+def handle_error_in_dead_letter_queue(*args, **kwargs):
+    print('error has been handle by dead letter')
+
+
 def handle_result(result):
     if result.successful():
         print(f'Task completed: {result.get()}')
     elif result.failed() and isinstance(result.result, ValueError):
-        print(f'Task failed:  {result.result}')
+        handle_error_in_dead_letter_queue.apply_async(args=('this is data', 'another data'))
     elif result.status == 'REVOKED':
         print(f'Task was revoked: {result.id}')
 
