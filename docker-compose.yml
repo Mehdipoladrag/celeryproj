@@ -32,7 +32,7 @@ services:
     build:
       context: ./eshop
       dockerfile: Dockerfile
-    command: celery --app=config worker -l INFO -Q tasks,dead_letter
+    command: celery --app=config worker -l INFO -Q tasks,dead_letter -E
     volumes:
       - ./eshop:/app/
     environment:
